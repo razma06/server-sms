@@ -2,10 +2,12 @@ const express = require("express");
 const cors = require("cors");
 const pool = require("./db");
 const twilio = require("twilio");
+const { getSms, createSms, updateSms, getFilteredSms } = require("./smsdb");
+const knex = require("./knexConnection");
 
-const sid = "AC8e000f6abb9424633a7ea6722c262bdf";
-const token = "bae84d440eef8db4a4a4e7ea71849310";
-const phone = "+16623378459";
+const sid = "ACe16a4cf68ce4c741ee08e2d8c8b191fa";
+const token = "a53203e1351632298689d10301709200";
+const phone = "+13073232443";
 
 const app = express();
 
@@ -16,19 +18,14 @@ app.use(express.json());
 
 app.get("/history", async (req, res) => {
     try {
-        await pool.connect();
-        await pool
-            .query("SELECT * FROM sms")
+        getSms()
             .then((result) => {
-                res.json(result.rows);
+                res.status(200);
+                res.json(result);
             })
-            .catch((err) => {
-                console.log(err);
+            .catch((error) => {
                 res.status(400);
-                res.write("There was a problem");
-            })
-            .finally(() => {
-                res.end();
+                res.write("there was a problem");
             });
     } catch (err) {
         console.log(err);
@@ -39,54 +36,48 @@ app.get("/history/filter/", async (req, res) => {
     try {
         const { receiver, datefrom, dateto } = req.query;
 
-        await pool.connect();
-        await pool
-            .query(
-                "SELECT * FROM sms WHERE receiver = $1 AND date between $2 AND $3",
-                ["+" + receiver.trim(), datefrom, dateto]
-            )
-            .then((result) => {
-                res.json(result.rows);
-            })
-            .catch((err) => {
-                console.log(err);
-                res.status(400);
-                res.write("There was a problem");
-            })
-            .finally(() => {
-                res.end();
-            });
+        const data = await getFilteredSms(receiver, datefrom, dateto);
+        console.log(data);
+        res.status(200);
+        res.json(data);
     } catch (err) {
         console.log(err);
     }
 });
 
-app.post("/", (req, res) => {
-    const { sender, mess, tel } = req.body;
-    client.messages
-        .create({
-            body: mess,
-            from: phone,
-            to: tel,
-        })
-        .then(async (message) => {
-            await pool.connect();
-            await pool
-                .query(
-                    `INSERT INTO "sms" ("sender", "receiver", "message", "date" ) VALUES ($1, $2, $3, $4)`,
-                    [sender, tel, mess, new Date()]
-                )
-                .then((response) => res.write("Message was sent"))
-                .catch((err) => console.log(err));
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(400);
-            res.write("There was a problem");
-        })
-        .finally(() => {
-            res.end();
+app.post("/", async (req, res) => {
+    const { from, to, message } = req.body;
+
+    try {
+        var id = await createSms({
+            from,
+            to,
+            message,
+            status: "in progress",
         });
+        console.log("db created");
+
+        await client.messages.create({
+            body: message,
+            from: phone,
+            to: to,
+        });
+        console.log("twilio message sent");
+
+        await updateSms(id[0], { status: "success" });
+
+        console.log("db updated");
+
+        res.status(400);
+        res.end("Message was sent");
+    } catch (error) {
+        await updateSms(id[0], { status: "error" });
+
+        res.status(400);
+        res.end("There was a problem");
+    } finally {
+        res.end();
+    }
 });
 
 app.listen(3000, () => {

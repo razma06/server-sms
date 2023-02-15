@@ -1,20 +1,25 @@
 {
-  "name": "server-sms-sender",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "nodemon": "^2.0.20",
-    "pg": "^8.9.0",
-    "twilio": "^3.84.1"
-  }
+    "name": "server-sms-sender",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "nodemon index.js",
+        "createTable": "node ./createSmsTable.js",
+        "seed": "node ./smsSeeder.js",
+        "drop": "node ./dropTable.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^4.18.2",
+        "knex": "^2.4.2",
+        "nodemon": "^2.0.20",
+        "pg": "^8.9.0",
+        "sqlite3": "^5.1.4",
+        "twilio": "^3.84.1"
+    }
 }
