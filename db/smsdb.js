@@ -21,7 +21,6 @@ function deleteSms(id) {
 }
 
 function getFilteredSms(to, datefrom, dateto) {
-    console.log(to.trim());
     return connectedKnex("sms")
         .select("*")
         .where(to ? { to: "+" + to.trim() } : true)

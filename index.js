@@ -2,8 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const pool = require("./db");
 const twilio = require("twilio");
-const { getSms, createSms, updateSms, getFilteredSms } = require("./smsdb");
-const knex = require("./knexConnection");
+const { getSms, createSms, updateSms, getFilteredSms } = require("./db/smsdb");
+const knex = require("./db/knexConnection");
 
 const sid = "ACe16a4cf68ce4c741ee08e2d8c8b191fa";
 const token = "a53203e1351632298689d10301709200";
