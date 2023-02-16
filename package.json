@@ -8,7 +8,7 @@
         "createTable": "node ./createSmsTable.js",
         "seed": "node ./smsSeeder.js",
         "drop": "node ./dropTable.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "jest --watchAll"
     },
     "keywords": [],
     "author": "",
@@ -21,5 +21,9 @@
         "pg": "^8.9.0",
         "sqlite3": "^5.1.4",
         "twilio": "^3.84.1"
+    },
+    "devDependencies": {
+        "jest": "^29.4.3",
+        "supertest": "^6.3.3"
     }
 }
